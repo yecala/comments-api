@@ -1,20 +1,30 @@
-# Usar Node.js LTS
+# ---- Base image ----
 FROM node:22-alpine
 
-# Crear directorio de trabajo
-WORKDIR /app
+# ---- Create app directory ----
+WORKDIR /usr/src/app
 
-# Copiar package.json y package-lock.json
+# ---- Copy package files first ----
 COPY package*.json ./
 
-# Instalar dependencias
+# ---- Install dependencies ----
 RUN npm install --omit=dev
 
-# Copiar el resto del código
+# ---- Copy the rest of the source code ----
 COPY . .
 
-# Exponer el puerto
-EXPOSE 3000
+# ---- Build arguments (for CI/CD) ----
+ARG AWS_REGION
+ARG DYNAMO_TABLE_NAME
+ARG PORT
 
-# Comando para ejecutar
+# ---- Environment variables inside container ----
+ENV AWS_REGION=${AWS_REGION}
+ENV DYNAMO_TABLE_NAME=${DYNAMO_TABLE_NAME}
+ENV PORT=${PORT}
+
+# ---- Expose port ----
+EXPOSE ${PORT}
+
+# ---- Start the app ----
 CMD ["node", "src/app.js"]
